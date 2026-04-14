@@ -8,7 +8,7 @@ import Toast from '../components/Toast'
 import { useIdeaFilters } from '../hooks/useIdeaFilters'
 import { useIdeas } from '../hooks/useIdeas'
 import { useTheme } from '../hooks/useTheme'
-import { getTagLabel } from '../utils/tags'
+import { collectUniqueTags } from '../utils/tags'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 function IdeaBoardPage() {
@@ -37,20 +37,7 @@ function IdeaBoardPage() {
 
   const [toast, setToast] = useState({ message: '', type: 'info' })
   const prevErrorRef = useRef('')
-  const tagCatalogRef = useRef(new Set())
-
-  useEffect(() => {
-    ideas.forEach((idea) => {
-      ;(idea.tags || []).forEach((t) => {
-        const label = getTagLabel(t)
-        if (label) tagCatalogRef.current.add(label)
-      })
-    })
-  }, [ideas])
-
-  const availableTags = [...tagCatalogRef.current].sort((a, b) =>
-    a.localeCompare(b),
-  )
+  const availableTags = useMemo(() => collectUniqueTags(ideas), [ideas])
   const hasIdeas = ideas.length > 0
 
   const tagQuery = useMemo(() => {
